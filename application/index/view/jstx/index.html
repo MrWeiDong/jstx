@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <link rel="stylesheet" href="__STATIC__/home/css/base.css">
+    <link rel="stylesheet" href="__STATIC__/home/css/css.css">
+</head>
+
+<body>
+    <div class="header">
+        <div class="wrap clearfix">
+            <div class="fl">
+                <img src="__STATIC__/home/images/logo.png" alt="">
+            </div>
+            <div class="fr header_right">
+                <div class="usr_img">
+                    <img src="{$userinfo['thumb']}" alt="" style="width:60px;border-radius:50%;">
+                </div>
+                <div class="user_name">
+                    <span>{$userinfo['name']}</span>
+                </div>
+                <a class="user_out" href="{:url('index/login/outlog')}">
+                    <img src="__STATIC__/home/images/out_icon.png" alt="">
+                    退出
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="header_bottom">
+        <div class="wrap clearfix">
+            <div class="fr crub_box">
+                <a href="" class="crub_item on">
+                   （聊天室）
+                </a>
+            </div>
+        </div>
+    </div>
+
+
+
+    <div class="wrap main_content">
+            <div class="left_content">
+				<!-- <a href="" class="nav_item">用户管理</a>
+				<a href="" class="nav_item on">视频诊疗室</a> -->
+            </div>
+
+
+            <div class="video_main_middle">
+				{if $tid}	
+                <div class="video_main_middle_one">
+                    <p class="video_main_middle_title">与 <i>{$touser['name']}</i> 聊天中</p>
+                
+                    <ul class="video_main_middle_group">
+                        <!-- <li>
+                            <div class="video_main_middle_list_top">
+                                <img src="__STATIC__/home/images/chat_user2.png" alt="">
+                                <span>医生</span>
+                                <i>2019-05-29 15:02:30</i>
+                            </div>
+                            <p class="video_main_middle_list_text">不太懂您说的是神马呐~麻烦再说一遍谢谢</p>
+                        </li>
+                                        
+                        <li class="video_main_middle_list_right">
+                            <div class="video_main_middle_list_top clearfix">
+                                <i>2019-05-29 15:02:30</i>
+                                <span>翻译</span>
+                                <img src="__STATIC__/home/images/chat_user1.png" alt="">
+                            </div>
+                            <p class="video_main_middle_list_text">我说需要开的医药单你注意下</p>
+                        </li> -->
+                    </ul>
+                    <div class="video_main_middle_bottom">
+                        <textarea name="text" id="message" placeholder="请输入聊天内容..."></textarea>
+                        <a id="btn">发送</a>
+                    </div>
+                </div>
+				{/if}
+            </div>
+
+            <div class="video_main_right">
+                <div class="video_main_right_one">
+                    <p class="video_main_right_one_title">好友列表</p>
+					{foreach $userlist as $val}
+                    <p class="video_main_right_one_frame">
+						<a href="{:url('index/jstx/index',array('tid'=>$val['id']))}">
+							<img src="{$val['thumb']}" style="width:40px;border-radius:50%;">
+							<span>{$val['name']}</span>
+						<a>
+					</p>
+					{/foreach}
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+<script>
+	uid = {$uid};
+	tid = {$tid};
+	username = '{$userinfo["name"]}';
+	toname = '{$touser["name"]}';
+	tothumb = '{$touser["thumb"]}';
+	userthumb = '{$userinfo["thumb"]}';
+	ws = new WebSocket("ws://127.0.0.1:8282");
+	ws.onmessage = function(e){
+		data = JSON.parse(e.data);
+		if(data.type == 'bind'){
+			data = '{"type":"bind","uid":"'+uid+'"}';
+			ws.send(data);
+		}
+
+		if(data.type == 'pull'){
+			
+		}
+
+		if(data.type == 'say'){
+			$('.video_main_middle_group').append('<li><div class="video_main_middle_list_top"><img src="'+tothumb+'" alt=""><span>'+toname+'</span><i>'+data.date_time+'</i></div><p class="video_main_middle_list_text">'+data.message+'</p></li>');
+		} 
+		console.log(data);
+	}
+	
+	$('#btn').click(function(){
+		message = $('#message').val();
+		date_time = '<?php echo date("Y-m-d H:i:s",time()); ?>';
+		
+		$('.video_main_middle_group').append('<li class="video_main_middle_list_right"><div class="video_main_middle_list_top clearfix"><i>'+date_time+'</i><span>'+username+'</span><img src="'+userthumb+'" alt=""></div><p class="video_main_middle_list_text">'+message+'</p></li>');
+		data = '{"type":"say","msg":"'+message+'","uid":"'+uid+'","tid":"'+tid+'"}';
+		ws.send(data);
+	})
+	
+</script>
+</html>

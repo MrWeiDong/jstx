@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <link rel="stylesheet" href="__STATIC__/home/css/base.css">
+    <!-- <link rel="stylesheet" href="css/font-awesome.css"> -->
+    <link rel="stylesheet" href="__STATIC__/home/css/css.css">
+</head>
+<body>
+    <div class="container">
+        <div class="login">
+            <div class="login_mask"></div>
+            <div class="login_box clearfix">
+                <div class="login_box_left">
+                    <h1></h1>
+                    <h2></h2>
+                    <h3></h3>
+                </div>
+                <div class="login_box_right">
+					<form action="/index/login/reg" method="post" id="formname">
+						<!-- <img src="__STATIC__/home/images/login-logo.png" alt="" class="login_box_right_img"> -->
+						<p class="login_box_right_title">注册您的账户</p>
+
+						<div class="login_box_right_inBox">
+							<div class="login_box_right_inBox_list clearfix">
+								<p><img src="__STATIC__/home/images/login-user.png" alt=""></p>
+								<input type="text" name="name" id="name" placeholder="账号">
+							</div>
+
+							<div class="login_box_right_inBox_list clearfix">
+								<p><img src="__STATIC__/home/images/login-pass.png" alt=""></p>
+								<input type="password" name="pass" id="pass" placeholder="密码">
+							</div>
+
+							<div class="login_box_right_inBox_list clearfix">
+								<p><img src="__STATIC__/home/images/login-pass.png" alt=""></p>
+								<input type="password" name="repass" id="repass" placeholder="确认密码">
+							</div>
+
+							<!-- <div class="login_box_right_option clearfix">
+								<div class="login_box_right_option_left clearfix">
+									<a href="{:url('index/login/reg')}"><span style="margin-left:0px">注册</span></a>
+								</div>
+								<a href="" class="login_box_right_option_right">忘记密码？</a>
+							</div> -->
+
+							<a class="login_box_right_inBox_a">登陆</a>
+						</div>
+					</form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+    <script src="__STATIC__/home/js/jquery-1.11.1.min.js"></script>
+    <script>
+        $('.login_box_right_inBox_a').click(function(){
+			if(!$('#name').val()){
+				alert('请输入用户名');
+				return;
+			}
+			if(!$('#pass').val()){
+				alert('请输入密码');
+				return;
+			}
+			if(!$('#repass').val()){
+				alert('请再次输入密码');
+				return;
+			}
+			if($('#pass').val() != $('#repass').val()){
+				alert('俩次密码不一致');
+				return;
+			}
+			var formdata = $("#formname").serialize();
+			post_flag = false;
+			$.ajax({
+				type:"post",
+				url:"{:url('index/login/reg')}",
+				data:formdata,
+				dataTyoe:'json',
+				success:function(data){
+					if(data.code == 200){
+						alert(data.msg)
+						window.location.replace("/index/jstx/index");
+					}else{
+						alert(data.msg);
+					}
+				}
+			})
+		})
+    </script>
+</body>
+</html>
