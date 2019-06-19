@@ -8,6 +8,19 @@
     <title>Document</title>
     <link rel="stylesheet" href="__STATIC__/home/css/base.css">
     <link rel="stylesheet" href="__STATIC__/home/css/css.css">
+	<style>
+		#get_file{
+			font-size: 34px;
+			position: absolute;
+			top: 29%;
+			right: 105px;
+			width: 32px;
+			height: 32px;
+			line-height: 32px;
+			text-align: center;
+			color: #2e96ed;
+		}
+	</style>
 </head>
 
 <body>
@@ -55,27 +68,41 @@
                 <div class="video_main_middle_one">
                     <p class="video_main_middle_title">与 <i>{$touser['name']}</i> 聊天中</p>
                 
-                    <ul class="video_main_middle_group">
-                        <!-- <li>
+                    <ul class="video_main_middle_group" style="height: 400px;overflow: auto;">
+					{foreach $messageList as $val}
+						{if $val['uid'] != $uid}
+                        <li>
                             <div class="video_main_middle_list_top">
-                                <img src="__STATIC__/home/images/chat_user2.png" alt="">
-                                <span>医生</span>
-                                <i>2019-05-29 15:02:30</i>
+                                <img src="{$userinfo['thumb']}" alt="">
+                                <span>{$userinfo['name']}</span>
+                                <i>{$val['create_time']}</i>
                             </div>
-                            <p class="video_main_middle_list_text">不太懂您说的是神马呐~麻烦再说一遍谢谢</p>
+							{if $val['type'] == 1}
+                            <p class="video_main_middle_list_text">{$val['message']}</p>
+							{else}
+							<img src="{$val['message']}" style="width:20%">
+							{/if}
                         </li>
-                                        
-                        <li class="video_main_middle_list_right">
+						{else}
+						<li class="video_main_middle_list_right">
                             <div class="video_main_middle_list_top clearfix">
-                                <i>2019-05-29 15:02:30</i>
-                                <span>翻译</span>
-                                <img src="__STATIC__/home/images/chat_user1.png" alt="">
+                                <i>{$val['create_time']}</i>
+                                <span>{$touser['name']}</span>
+                                <img src="{$touser['thumb']}" alt="">
                             </div>
-                            <p class="video_main_middle_list_text">我说需要开的医药单你注意下</p>
-                        </li> -->
+							{if $val['type'] == 1}
+                            <p class="video_main_middle_list_text">{$val['message']}</p>
+							{else}
+							<img src="{$val['message']}" style="width:20%">
+							{/if}
+                        </li>	
+						{/if}
+                    {/foreach}                    
                     </ul>
                     <div class="video_main_middle_bottom">
                         <textarea name="text" id="message" placeholder="请输入聊天内容..."></textarea>
+						<span id="get_file">+</span>
+						<input type='file' name="file" id="file" style="display:none">
                         <a id="btn">发送</a>
                     </div>
                 </div>
@@ -90,7 +117,7 @@
 						<a href="{:url('index/jstx/index',array('tid'=>$val['id']))}">
 							<img src="{$val['thumb']}" style="width:40px;border-radius:50%;">
 							<span>{$val['name']}</span>
-						<a>
+						</a>
 					</p>
 					{/foreach}
                 </div>
@@ -100,8 +127,10 @@
 </body>
 <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
 <script>
+	$(".video_main_middle_group").animate({scrollTop:$(".video_main_middle_group")[0].scrollHeight},'200');	
 	uid = {$uid};
 	tid = {$tid};
+	online = 0;
 	username = '{$userinfo["name"]}';
 	toname = '{$touser["name"]}';
 	tothumb = '{$touser["thumb"]}';
@@ -112,16 +141,40 @@
 		if(data.type == 'bind'){
 			data = '{"type":"bind","uid":"'+uid+'"}';
 			ws.send(data);
+			online ='{"type":"online","uid":"'+uid+'","tid":"'+tid+'"}';
+			ws.send(online);
 		}
 
 		if(data.type == 'pull'){
-			
+			$.ajax({
+				type:"post",
+				url:"{:url('pull')}",
+				data:data,
+				dataType:'json',
+				async: false,
+				success: function (data) {
+					
+				}
+			});
 		}
 
 		if(data.type == 'say'){
 			$('.video_main_middle_group').append('<li><div class="video_main_middle_list_top"><img src="'+tothumb+'" alt=""><span>'+toname+'</span><i>'+data.date_time+'</i></div><p class="video_main_middle_list_text">'+data.message+'</p></li>');
-		} 
-		console.log(data);
+			$(".video_main_middle_group").animate({scrollTop:$(".video_main_middle_group")[0].scrollHeight},'200');
+		}
+		
+		if(data.type == 'online'){
+			if(data.status == 1){
+				online = 1;
+			}else{
+				online = 0;
+			}
+		}
+
+		if(data.type == 'say_img'){
+			$('.video_main_middle_group').append('<li><div class="video_main_middle_list_top"><img src="'+tothumb+'" alt=""><span>'+toname+'</span><i>'+data.date_time+'</i></div><img src="'+data.message+'" style="width:20%"></li>');
+			$(".video_main_middle_group").animate({scrollTop:$(".video_main_middle_group")[0].scrollHeight},'200');
+		}
 	}
 	
 	$('#btn').click(function(){
@@ -130,8 +183,48 @@
 		
 		$('.video_main_middle_group').append('<li class="video_main_middle_list_right"><div class="video_main_middle_list_top clearfix"><i>'+date_time+'</i><span>'+username+'</span><img src="'+userthumb+'" alt=""></div><p class="video_main_middle_list_text">'+message+'</p></li>');
 		data = '{"type":"say","msg":"'+message+'","uid":"'+uid+'","tid":"'+tid+'"}';
+
+		$(".video_main_middle_group").animate({scrollTop:$(".video_main_middle_group")[0].scrollHeight},'200');
 		ws.send(data);
+		$('#message').val('');
 	})
 	
+	//发送图片
+	$('#get_file').click(function(){
+		$('#file').click();
+	})
+
+	$('#file').change(function(){
+		formdata = new FormData();
+		formdata.append('uid',uid);
+		formdata.append('tid',tid);
+		formdata.append('online',online);
+		formdata.append('file',$("#file")[0].files[0]);
+		
+		
+		$.ajax({
+			type:"post",
+			url:"{:url('uploadimg')}",
+			data:formdata,
+			dataType:'json',
+			cache:false,
+			processData:false,
+            contentType:false,
+			success: function (data) {
+				if(data.code == 200){
+					imgname = data.ima_name;
+					date_time = '<?php echo date("Y-m-d H:i:s",time()); ?>';
+					$('.video_main_middle_group').append('<li class="video_main_middle_list_right"><div class="video_main_middle_list_top clearfix"><i>'+date_time+'</i><span>'+username+'</span><img src="'+userthumb+'" alt=""></div><img src="'+imgname+'" style="width:20%"></li>');	
+					$(".video_main_middle_group").animate({scrollTop:$(".video_main_middle_group")[0].scrollHeight},'200');	
+
+					data = '{"type":"say_img","uid":"'+uid+'","tid":"'+tid+'","msg":"'+imgname+'"}';
+					ws.send(data);
+				}else{
+					alert(data.msg);
+				}	
+			}
+		});
+		
+	})
 </script>
 </html>

@@ -63,7 +63,7 @@ class Events
 					'uid' =>$uid,
 					'tid' =>$tid,
 					'date_time' =>date('Y-m-d H:i:s',time()),
-					'message'=>htmlspecialchars($info['msg'])
+					'message'=>nl2br(htmlspecialchars($info['msg']))
 				];
 				if(Gateway::isUidOnline($tid)){
 					$data['isdu'] = 1;
@@ -73,6 +73,24 @@ class Events
 				}
 				$data['type'] = 'pull';
 				Gateway::sendToUid($uid,json_encode($data));
+				return;
+			case "online":
+				$uid = $info['uid'];
+				$tid = $info['tid'];
+				$status = Gateway::isUidOnline($tid);
+				Gateway::sendToUid($uid,json_encode(['type'=>'online','status'=>$status]));
+				return;
+			case "say_img":
+				$uid = $info['uid'];
+				$tid = $info['tid'];
+				$data = [
+					'type' => 'say_img',
+					'uid' => $uid,
+					'tid' => $tid,
+					'data' => date('Y-m-d H:i:s',time()),
+					'message' => $info['msg'],
+				];
+				Gateway::sendToUid($tid,json_encode($data));
 				return;
 		}
         // 向所有人发送 

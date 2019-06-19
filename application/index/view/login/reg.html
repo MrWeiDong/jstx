@@ -8,6 +8,27 @@
     <link rel="stylesheet" href="__STATIC__/home/css/base.css">
     <!-- <link rel="stylesheet" href="css/font-awesome.css"> -->
     <link rel="stylesheet" href="__STATIC__/home/css/css.css">
+	<style>
+	#phone{
+		line-height: 50px;
+		margin-left: 2px;
+		float:left;
+		width: 150px;
+	}
+	.getCode{
+		display: block;
+		height: 38px;
+		width: 100px;
+		float: right;
+	}
+	.imgthumb{
+		border-radius: 50%;
+		width: 64px;
+		height: 64px;
+		border: 1px solid #ededed;
+		margin-bottom: 20px;
+	}
+	</style>
 </head>
 <body>
     <div class="container">
@@ -23,11 +44,15 @@
 					<form action="/index/login/reg" method="post" id="formname">
 						<!-- <img src="__STATIC__/home/images/login-logo.png" alt="" class="login_box_right_img"> -->
 						<p class="login_box_right_title">注册您的账户</p>
-
+					
 						<div class="login_box_right_inBox">
+							<div id="fileimg">
+								<img src="__STATIC__/home/images/txfile.png" alt="" class="imgthumb">
+							</div>
+							<input type="hidden" name="thumb" id="thumb">
 							<div class="login_box_right_inBox_list clearfix">
 								<p><img src="__STATIC__/home/images/login-user.png" alt=""></p>
-								<input type="text" name="name" id="name" placeholder="账号">
+								<input type="text" name="name" id="name" placeholder="用户名">
 							</div>
 
 							<div class="login_box_right_inBox_list clearfix">
@@ -38,6 +63,12 @@
 							<div class="login_box_right_inBox_list clearfix">
 								<p><img src="__STATIC__/home/images/login-pass.png" alt=""></p>
 								<input type="password" name="repass" id="repass" placeholder="确认密码">
+							</div>
+
+							<div class="login_box_right_inBox_list clearfix">
+								<p><img src="__STATIC__/home/images/login-user.png" alt=""></p>
+								<input type="text" name="phone" id="phone" placeholder="验证码">
+								<a href="javascript:;" class="getCode">获取验证码</a>
 							</div>
 
 							<!-- <div class="login_box_right_option clearfix">
@@ -54,7 +85,9 @@
             </div>
         </div>
     </div>
-
+	<form id="formdata" style="display: none">
+		<input type="file" id="fileids"  name="head" onchange="uploadify();" >
+	</form>
 
 
     <script src="__STATIC__/home/js/jquery-1.11.1.min.js"></script>
@@ -91,6 +124,44 @@
 						alert(data.msg);
 					}
 				}
+			})
+		})
+
+		$('.imgthumb').click(function(){
+			$('#fileids').trigger('click');
+		})
+		
+		function imgthumb(){
+			$('#fileids').trigger('click');
+		}
+		function uploadify(){
+			var myForm = document.getElementById("formdata");
+			formData = new FormData(myForm);
+			$.ajax({
+				url:'{:url("upload")}',
+				type: 'POST',
+				data: formData,
+				contentType: false,
+				processData: false,
+				success:function(data){
+					if(data.code == 200){
+						$('#fileimg').html('<img src="'+data.path+'" alt="" class="imgthumb" onclick="imgthumb()">');
+						$('#thumb').val(data.path);
+					}else{
+						alert(data.msg);
+					}
+				}
+			})
+		}
+
+		$('.getCode').click(function(){
+			phone = $('#phone').val();
+			if(!phone){
+				alert('请输入电话号');
+				return;
+			}
+			$.post('{:url("getCode")}',{phone:phone},function(data){
+				
 			})
 		})
     </script>

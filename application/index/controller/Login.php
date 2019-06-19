@@ -6,7 +6,7 @@ use think\Validate;
 use think\helper\Hash;
 use think\Session;
 use app\index\model\Member as MemberModel;
-
+use Qcloud\Sms\SmsSingleSender;
 class Login extends Controller{
 	
 	public function logion(){
@@ -64,5 +64,29 @@ class Login extends Controller{
 		Session::delete('name');
 		Session::delete('uid');
 		$this->redirect('index/login/logion');
+	}
+
+	//上传图片
+	public function upload(){
+		$file = request()->file('head');
+		$info = $file->validate(['size'=>156780,'ext'=>'jpg,png,jpeg,gif'])->move(ROOT_PATH . 'public' . DS . 'head');
+		if($info){
+            // 输出 20160820/42a79759f284b767dfcb2a0197904287.jpg
+            $path = '/head/'.$info->getSaveName();
+			return ['code'=>200,'path'=>$path];
+        }else{
+            // 上传失败获取错误信息
+            return ['code'=>201,'msg'=>$file->getError()];
+        }
+		
+	}
+
+	//获取验证码
+	public function getcode(){
+		$phone = input('phone');
+		$appid = 1400222679;
+		$appkey = 'fe270826acbbd6dfa25c711786fa2008';
+		
+		//$msender = new SmsMultiSender($appid, $appkey);
 	}
 }
