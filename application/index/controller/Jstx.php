@@ -4,6 +4,7 @@ use think\Controller;
 use app\index\controller\User;
 use app\index\model\Member as MemberModel;
 use app\index\model\Message as MessageModel;
+use think\Db;
 
 class Jstx extends User {
 	public function _initialize(){
@@ -20,9 +21,11 @@ class Jstx extends User {
 		$this->assign('tid',$tid);
 		$touser = MemberModel::where(['id'=>$tid])->find();
 		$this->assign('touser',$touser);
-
+		$uid = $this->mid;
+		
 		//获取聊天历史记录
-		$messageList = MessageModel::where(['uid|tid'=>$this->mid,'uid|tid'=>$tid])->order(['create_time'=>'desc'])->paginate(10);
+		$messageList =  Db::name('message')->where('(uid=:uid and tid=:tid) || (uid=:tid1 and  tid=:uid1)',['uid'=>$uid,'tid'=>$tid,'tid1'=>$tid,'uid1'=>$uid])->order(['create_time'=>'desc'])->paginate(10);
+
 		$messageList = json_encode($messageList);
 		$messageList = json_decode($messageList,true);
 		$messageList = $messageList['data'];

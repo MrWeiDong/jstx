@@ -8,6 +8,8 @@
     <title>Document</title>
     <link rel="stylesheet" href="__STATIC__/home/css/base.css">
     <link rel="stylesheet" href="__STATIC__/home/css/css.css">
+	<link rel="stylesheet" href="__STATIC__/emoji/lib/css/jquery.mCustomScrollbar.min.css"/>
+	<link rel="stylesheet" href="__STATIC__/emoji/dist/css/jquery.emoji.css"/>
 	<style>
 		#get_file{
 			font-size: 34px;
@@ -19,6 +21,17 @@
 			line-height: 32px;
 			text-align: center;
 			color: #2e96ed;
+		}
+		.emoji_container{
+			top: 305px !important;
+		}
+		.emoji_btn{
+			top: -54px !important;
+			left: 306px !important;
+			position: relative !important;
+		}
+		.video_main_middle_bottom textarea{
+			left: 45px;
 		}
 	</style>
 </head>
@@ -73,8 +86,8 @@
 						{if $val['uid'] != $uid}
                         <li>
                             <div class="video_main_middle_list_top">
-                                <img src="{$userinfo['thumb']}" alt="">
-                                <span>{$userinfo['name']}</span>
+                                <img src="{$touser['thumb']}" alt="">
+                                <span>{$touser['name']}</span>
                                 <i>{$val['create_time']}</i>
                             </div>
 							{if $val['type'] == 1}
@@ -87,11 +100,11 @@
 						<li class="video_main_middle_list_right">
                             <div class="video_main_middle_list_top clearfix">
                                 <i>{$val['create_time']}</i>
-                                <span>{$touser['name']}</span>
-                                <img src="{$touser['thumb']}" alt="">
+                                <span>{$userinfo['name']}</span>
+                                <img src="{$userinfo['thumb']}" alt="">
                             </div>
 							{if $val['type'] == 1}
-                            <p class="video_main_middle_list_text">{$val['message']}</p>
+                            <p class="video_main_middle_list_text">{:stremjio($val['message'])}</p>
 							{else}
 							<img src="{$val['message']}" style="width:20%">
 							{/if}
@@ -100,7 +113,9 @@
                     {/foreach}                    
                     </ul>
                     <div class="video_main_middle_bottom">
+						<div id="aaaaaa">
                         <textarea name="text" id="message" placeholder="请输入聊天内容..."></textarea>
+						</div>
 						<span id="get_file">+</span>
 						<input type='file' name="file" id="file" style="display:none">
                         <a id="btn">发送</a>
@@ -124,8 +139,16 @@
             </div>
         </div>
     </div>
+	<span id="sourceTextaa"></span>
+	<span id="btnParse">转换</span>
+
+	<span onclick="stremjio(':haha::a:#qq_44#')">转换1</span>
 </body>
-<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+<!-- <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script> -->
+<script src="__STATIC__/emoji/lib/script/jquery.min.js"></script>
+<script src="__STATIC__/emoji/lib/script/jquery.mousewheel-3.0.6.min.js"></script>
+<script src="__STATIC__/emoji/lib/script/jquery.mCustomScrollbar.min.js"></script>
+<script src="__STATIC__/emoji/src/js/jquery.emoji.js"></script>
 <script>
 	$(".video_main_middle_group").animate({scrollTop:$(".video_main_middle_group")[0].scrollHeight},'200');	
 	uid = {$uid};
@@ -135,6 +158,7 @@
 	toname = '{$touser["name"]}';
 	tothumb = '{$touser["thumb"]}';
 	userthumb = '{$userinfo["thumb"]}';
+	
 	ws = new WebSocket("ws://127.0.0.1:8282");
 	ws.onmessage = function(e){
 		data = JSON.parse(e.data);
@@ -159,7 +183,7 @@
 		}
 
 		if(data.type == 'say'){
-			$('.video_main_middle_group').append('<li><div class="video_main_middle_list_top"><img src="'+tothumb+'" alt=""><span>'+toname+'</span><i>'+data.date_time+'</i></div><p class="video_main_middle_list_text">'+data.message+'</p></li>');
+			$('.video_main_middle_group').append('<li><div class="video_main_middle_list_top"><img src="'+tothumb+'" alt=""><span>'+toname+'</span><i>'+data.date_time+'</i></div><p class="video_main_middle_list_text">'+stremjio(data.message)+'</p></li>');
 			$(".video_main_middle_group").animate({scrollTop:$(".video_main_middle_group")[0].scrollHeight},'200');
 		}
 		
@@ -179,9 +203,13 @@
 	
 	$('#btn').click(function(){
 		message = $('#message').val();
+		if(!message){
+			alert('请输入内容');
+			return
+		}
 		date_time = '<?php echo date("Y-m-d H:i:s",time()); ?>';
 		
-		$('.video_main_middle_group').append('<li class="video_main_middle_list_right"><div class="video_main_middle_list_top clearfix"><i>'+date_time+'</i><span>'+username+'</span><img src="'+userthumb+'" alt=""></div><p class="video_main_middle_list_text">'+message+'</p></li>');
+		$('.video_main_middle_group').append('<li class="video_main_middle_list_right"><div class="video_main_middle_list_top clearfix"><i>'+date_time+'</i><span>'+username+'</span><img src="'+userthumb+'" alt=""></div><p class="video_main_middle_list_text" >'+stremjio(message)+'</p></li>');
 		data = '{"type":"say","msg":"'+message+'","uid":"'+uid+'","tid":"'+tid+'"}';
 
 		$(".video_main_middle_group").animate({scrollTop:$(".video_main_middle_group")[0].scrollHeight},'200');
@@ -224,7 +252,201 @@
 				}	
 			}
 		});
-		
 	})
+
+	$("#message").emoji({
+		showTab: true,
+		animation: 'fade',
+		icons: [{
+			name: "贴吧表情",
+			path: "__STATIC__/emoji/dist/img/tieba/",
+			maxNum: 50,
+			file: ".jpg",
+			placeholder: ":{alias}:",
+			alias: {
+				1: "hehe",
+				2: "haha",
+				3: "tushe",
+				4: "a",
+				5: "ku",
+				6: "lu",
+				7: "kaixin",
+				8: "han",
+				9: "lei",
+				10: "heixian",
+				11: "bishi",
+				12: "bugaoxing",
+				13: "zhenbang",
+				14: "qian",
+				15: "yiwen",
+				16: "yinxian",
+				17: "tu",
+				18: "yi",
+				19: "weiqu",
+				20: "huaxin",
+				21: "hu",
+				22: "xiaonian",
+				23: "neng",
+				24: "taikaixin",
+				25: "huaji",
+				26: "mianqiang",
+				27: "kuanghan",
+				28: "guai",
+				29: "shuijiao",
+				30: "jinku",
+				31: "shengqi",
+				32: "jinya",
+				33: "pen",
+				34: "aixin",
+				35: "xinsui",
+				36: "meigui",
+				37: "liwu",
+				38: "caihong",
+				39: "xxyl",
+				40: "taiyang",
+				41: "qianbi",
+				42: "dnegpao",
+				43: "chabei",
+				44: "dangao",
+				45: "yinyue",
+				46: "haha2",
+				47: "shenli",
+				48: "damuzhi",
+				49: "ruo",
+				50: "OK"
+			},
+			title: {
+				1: "呵呵",
+				2: "哈哈",
+				3: "吐舌",
+				4: "啊",
+				5: "酷",
+				6: "怒",
+				7: "开心",
+				8: "汗",
+				9: "泪",
+				10: "黑线",
+				11: "鄙视",
+				12: "不高兴",
+				13: "真棒",
+				14: "钱",
+				15: "疑问",
+				16: "阴脸",
+				17: "吐",
+				18: "咦",
+				19: "委屈",
+				20: "花心",
+				21: "呼~",
+				22: "笑脸",
+				23: "冷",
+				24: "太开心",
+				25: "滑稽",
+				26: "勉强",
+				27: "狂汗",
+				28: "乖",
+				29: "睡觉",
+				30: "惊哭",
+				31: "生气",
+				32: "惊讶",
+				33: "喷",
+				34: "爱心",
+				35: "心碎",
+				36: "玫瑰",
+				37: "礼物",
+				38: "彩虹",
+				39: "星星月亮",
+				40: "太阳",
+				41: "钱币",
+				42: "灯泡",
+				43: "茶杯",
+				44: "蛋糕",
+				45: "音乐",
+				46: "haha",
+				47: "胜利",
+				48: "大拇指",
+				49: "弱",
+				50: "OK"
+			}
+		}, {
+			name: "qq表情",
+			path: "__STATIC__/emoji/dist/img/qq/",
+			maxNum: 91,
+			excludeNums: [41, 45, 54],
+			file: ".gif",
+			placeholder: "#qq_{alias}#"
+		}]
+	});
+
+	$("#btnParse").click(function () {
+		str = $('#message').val();
+		replace_em(str)
+    });
+	
+	function replace_em(str){
+		$("#sourceTextaa").emojishow({
+        	content:str,
+            icons: [{
+                path: "__STATIC__/emoji/dist/img/tieba/",
+                file: ".jpg",
+                placeholder: ":{alias}:",
+                alias: {
+                    1: "hehe",
+                    2: "haha",
+                    3: "tushe",
+                    4: "a",
+                    5: "ku",
+                    6: "lu",
+                    7: "kaixin",
+                    8: "han",
+                    9: "lei",
+                    10: "heixian",
+                    11: "bishi",
+                    12: "bugaoxing",
+                    13: "zhenbang",
+                    14: "qian",
+                    15: "yiwen",
+                    16: "yinxian",
+                    17: "tu",
+                    18: "yi",
+                    19: "weiqu",
+                    20: "huaxin",
+                    21: "hu",
+                    22: "xiaonian",
+                    23: "neng",
+                    24: "taikaixin",
+                    25: "huaji",
+                    26: "mianqiang",
+                    27: "kuanghan",
+                    28: "guai",
+                    29: "shuijiao",
+                    30: "jinku",
+                    31: "shengqi",
+                    32: "jinya",
+                    33: "pen",
+                    34: "aixin",
+                    35: "xinsui",
+                    36: "meigui",
+                    37: "liwu",
+                    38: "caihong",
+                    39: "xxyl",
+                    40: "taiyang",
+                    41: "qianbi",
+                    42: "dnegpao",
+                    43: "chabei",
+                    44: "dangao",
+                    45: "yinyue",
+                    46: "haha2",
+                    47: "shenli",
+                    48: "damuzhi",
+                    49: "ruo",
+                    50: "OK"
+                }
+            }, {
+                path: "__STATIC__/emoji/dist/img/qq/",
+                file: ".gif",
+                placeholder: "#qq_{alias}#"
+            }]
+        });
+	}
 </script>
 </html>

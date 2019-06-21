@@ -9,7 +9,7 @@
     <!-- <link rel="stylesheet" href="css/font-awesome.css"> -->
     <link rel="stylesheet" href="__STATIC__/home/css/css.css">
 	<style>
-	#phone{
+	#code{
 		line-height: 50px;
 		margin-left: 2px;
 		float:left;
@@ -27,6 +27,9 @@
 		height: 64px;
 		border: 1px solid #ededed;
 		margin-bottom: 20px;
+	}
+	.login_box_right_title{
+		padding-top: 34px;
 	}
 	</style>
 </head>
@@ -66,8 +69,13 @@
 							</div>
 
 							<div class="login_box_right_inBox_list clearfix">
+								<p><img src="__STATIC__/home/images/phone.png" alt=""></p>
+								<input type="text" name="phone" id="phone" placeholder="手机号">
+							</div>
+
+							<div class="login_box_right_inBox_list clearfix">
 								<p><img src="__STATIC__/home/images/login-user.png" alt=""></p>
-								<input type="text" name="phone" id="phone" placeholder="验证码">
+								<input type="text" name="code" id="code" placeholder="验证码">
 								<a href="javascript:;" class="getCode">获取验证码</a>
 							</div>
 
@@ -107,6 +115,18 @@
 			}
 			if($('#pass').val() != $('#repass').val()){
 				alert('俩次密码不一致');
+				return;
+			}
+			if(!$('#phone').val()){
+				alert('请输入手机号');
+				return;
+			}
+			if(!$('#code').val()){
+				alert('请输入验证码');
+				return;
+			}
+			if(!$('#thumb').val()){
+				alert('请上传头像');
 				return;
 			}
 			var formdata = $("#formname").serialize();
@@ -161,7 +181,11 @@
 				return;
 			}
 			$.post('{:url("getCode")}',{phone:phone},function(data){
-				
+				if(data.code == 200){
+					alert(data.msg);
+				}else{
+					alert(data.msg);
+				}
 			})
 		})
     </script>
