@@ -13,6 +13,13 @@ class Jstx extends User {
 		$this->assign('userinfo',$userinfo);
 		$userlist = MemberModel::where(['id'=>['NEQ',$this->mid]])->select();
 		$this->assign('userlist',$userlist);
+
+		//我的聊天好友
+		//$friendlist = MessageModel::where(['uid'=>$this->mid])->order('id','desc')->select();
+		$friendlist  = Db::name('message')->field(['uid','tid','type'])->where('tid',$this->mid)->group('uid')->select();
+		echo "<pre>";
+		print_R($friendlist);
+		die;
 	}
 
 	public function index(){
@@ -29,6 +36,7 @@ class Jstx extends User {
 		$messageList = json_encode($messageList);
 		$messageList = json_decode($messageList,true);
 		$messageList = $messageList['data'];
+		
 
 		$id = array_column($messageList,'id');
 		array_multisort($messageList,SORT_ASC,$id);

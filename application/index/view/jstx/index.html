@@ -27,7 +27,7 @@
 		}
 		.emoji_btn{
 			top: -54px !important;
-			left: 306px !important;
+			left: 29% !important;
 			position: relative !important;
 		}
 		.video_main_middle_bottom textarea{
@@ -70,13 +70,23 @@
 
 
     <div class="wrap main_content">
-            <div class="left_content">
-				<!-- <a href="" class="nav_item">用户管理</a>
-				<a href="" class="nav_item on">视频诊疗室</a> -->
+            
+			
+			<div class="video_main_right">
+                <div class="video_main_right_one">
+                    <p class="video_main_right_one_title">好友列表</p>
+					{foreach $userlist as $val}
+                    <p class="video_main_right_one_frame">
+						<a href="{:url('index/jstx/index',array('tid'=>$val['id']))}">
+							<img src="{$val['thumb']}" style="width:40px;border-radius:50%;">
+							<span>{$val['name']}</span>
+						</a>
+					</p>
+					{/foreach}
+                </div>
             </div>
 
-
-            <div class="video_main_middle">
+            <div class="video_main_middle" style="margin-right: 20px;">
 				{if $tid}	
                 <div class="video_main_middle_one">
                     <p class="video_main_middle_title">与 <i>{$touser['name']}</i> 聊天中</p>
@@ -88,10 +98,10 @@
                             <div class="video_main_middle_list_top">
                                 <img src="{$touser['thumb']}" alt="">
                                 <span>{$touser['name']}</span>
-                                <i>{$val['create_time']}</i>
+                                <i>{:date('Y-m-d H:i:s',$val['create_time'])}</i>
                             </div>
 							{if $val['type'] == 1}
-                            <p class="video_main_middle_list_text">{$val['message']}</p>
+                            <p class="video_main_middle_list_text">{:stremjio($val['message'])}</p>
 							{else}
 							<img src="{$val['message']}" style="width:20%">
 							{/if}
@@ -99,7 +109,7 @@
 						{else}
 						<li class="video_main_middle_list_right">
                             <div class="video_main_middle_list_top clearfix">
-                                <i>{$val['create_time']}</i>
+                                <i>{:date('Y-m-d H:i:s',$val['create_time'])}</i>
                                 <span>{$userinfo['name']}</span>
                                 <img src="{$userinfo['thumb']}" alt="">
                             </div>
@@ -123,8 +133,8 @@
                 </div>
 				{/if}
             </div>
-
-            <div class="video_main_right">
+			
+			<div class="video_main_right" >
                 <div class="video_main_right_one">
                     <p class="video_main_right_one_title">好友列表</p>
 					{foreach $userlist as $val}
@@ -137,12 +147,9 @@
 					{/foreach}
                 </div>
             </div>
+            
         </div>
     </div>
-	<span id="sourceTextaa"></span>
-	<span id="btnParse">转换</span>
-
-	<span onclick="stremjio(':haha::a:#qq_44#')">转换1</span>
 </body>
 <!-- <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script> -->
 <script src="__STATIC__/emoji/lib/script/jquery.min.js"></script>
